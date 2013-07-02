@@ -16,6 +16,12 @@
     background-position: center;
     background-repeat: no-repeat;
 }
+a.communaLink {
+    color: #8E1816;
+}
+a.communaLink:hover {
+    color: #4D0908;
+}
   </style>
   
   <script>
@@ -101,6 +107,8 @@ function mapsStart() {
 window.onload = start;
 ymaps.ready(mapsStart);
   </script>
+
+  <!-- Yandex.Metrika counter --><script type="text/javascript">(function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter21682768 = new Ya.Metrika({id:21682768, clickmap:true, trackLinks:true, accurateTrackBounce:true}); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="//mc.yandex.ru/watch/21682768" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter -->
 </head>
  
 <body>
@@ -123,6 +131,10 @@ ymaps.ready(mapsStart);
         <p>Это <span id='toMinsk' class='badge badge-warning'>?</span> раз до Минска</p>
         <p>И кругосветное путешествие на <span id='worldTrip' class='badge badge-info'>??%</span></p>
       </div>
+
+      <hr>
+      
+      <p class='text-center'>Разработано в <a href='http://com.muna.by/landing/project?bike' class='communaLink'>Коммуне</a>.</p>
     </div>
   </div>
 </div>
