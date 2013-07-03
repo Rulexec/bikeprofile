@@ -114,7 +114,7 @@ function processTracks() {
             MAX_DISTANCE = distance;
         }
 
-        track.distance = distance;
+        track.distance = distance / 1000;
         TOTAL += distance;
     });
 
