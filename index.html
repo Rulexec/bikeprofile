@@ -48,7 +48,27 @@ a.communa-link:hover {
       <hr>
 
       <div class='well lead'>
-        <p>Поездок: <span id='totalRides' class='badge'><i class='icon-refresh icon-white'></i></span></p>
+        <div>
+          <p class='pull-left'>Поездок: <span id='totalRides' class='badge'><i class='icon-refresh icon-white'></i></span></p>
+          <p class='pull-right'>Упал... <span class='badge badge-success'>0</span> раз! ;)</p>
+        </div>
+
+        <table class='table table-bordered'>
+          <thead>
+            <tr>
+              <td>Кратчайшая</td>
+              <td>Средняя</td>
+              <td>Длиннейшая</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id='minRide'><i class='icon-refresh'><i></td>
+              <td id='avgRide'><i class='icon-refresh'><i></td>
+              <td id='maxRide'><i class='icon-refresh'><i></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <hr>

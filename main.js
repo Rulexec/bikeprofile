@@ -1,4 +1,5 @@
-var TRACKS, RIDES_COUNT, TOTAL;
+var TRACKS, RIDES_COUNT, TOTAL, MIN_DISTANCE, AVG_DISTANCE, MAX_DISTANCE;
+var MAP;
 
 var loadLeft = 0;
 function isOneLoaded() { loadLeft--; if (loadLeft === 0) start(); }
@@ -24,11 +25,13 @@ function start() {
 function drawMap() {
     // Создаем карту.
     var rideMap = new ymaps.Map('map', {
-        center: [52.096368567021884, 23.731304143846582],
+        center: [52.090942428567935, 23.728316440837304],
         zoom: 13,
         type: 'yandex#satellite',
         behaviors: ['default', 'scrollZoom']
     });
+
+    MAP = rideMap; // hack for .getCenter() from browser console :|
 
     rideMap.controls.add('zoomControl', {left: 5, top: 5});
     rideMap.controls.add('typeSelector');
@@ -70,6 +73,10 @@ function updateStats() {
     $('#toMinsk').text(calcToMinskStr(TOTAL));
     $('#worldTrip').text(calcWorldTripStr(TOTAL) + '%');
 
+    $('#minRide').text(trunc(MIN_DISTANCE, 1) + 'км');
+    $('#avgRide').text(trunc(AVG_DISTANCE, 1) + 'км');
+    $('#maxRide').text(trunc(MAX_DISTANCE, 1) + 'км');
+
     function calcToMinskStr(km) {
         var distance = 350;
         return (Math.round((km / distance) * 100) / 100).toString();
@@ -78,12 +85,19 @@ function updateStats() {
         var distance = 40075;
         return (Math.round((km / distance) * 10000) / 10000).toString();
     }
+
+    function trunc(number, to) {
+        var t = Math.pow(10, to);
+        return Math.round(number * t) / t;
+    }
 }
 
 // uses globals
 function processTracks() {
     RIDES_COUNT = TRACKS.length;
     TOTAL = 0;
+    MIN_DISTANCE = Infinity;
+    MAX_DISTANCE = -Infinity;
 
     TRACKS.forEach(function(track) {
         var distance = 0;
@@ -93,10 +107,21 @@ function processTracks() {
             return current;
         });
 
-        track.distance = distance / 1000;
+        if (distance < MIN_DISTANCE) {
+            MIN_DISTANCE = distance;
+        }
+        if (distance > MAX_DISTANCE) {
+            MAX_DISTANCE = distance;
+        }
+
+        track.distance = distance;
         TOTAL += distance;
     });
 
+    MIN_DISTANCE /= 1000;
+    MAX_DISTANCE /= 1000;
     // bacause meters
     TOTAL = Math.floor(TOTAL / 100) / 10;
+
+    AVG_DISTANCE = TOTAL / RIDES_COUNT;
 }
