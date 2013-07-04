@@ -50,6 +50,7 @@ function drawMap() {
             hoverZindex = 42;
 
         if (track === LONGEST_TRACK) {
+            normalZindex = 12;
             normalColor = longestColor;
         }
 
