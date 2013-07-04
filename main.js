@@ -77,7 +77,7 @@ function drawMap() {
                 polyline.options.set('strokeOpacity', to ? 0.9 : opacity);
                 polyline.options.set('zIndex', to ? hoverZindex : normalZindex);
 
-                if (to && OPENED_BALLOON !== null) {
+                if (OPENED_BALLOON !== null) {
                     OPENED_BALLOON.mapApi.balloon(false);
                 }
 
