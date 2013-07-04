@@ -1,4 +1,4 @@
-var TRACKS, RIDES_COUNT, TOTAL, MIN_DISTANCE, AVG_DISTANCE, MAX_DISTANCE;
+var TRACKS, RIDES_COUNT, TOTAL, MIN_DISTANCE, AVG_DISTANCE, MAX_DISTANCE, LONGEST_TRACK;
 var MAP;
 
 var loadLeft = 0;
@@ -40,7 +40,14 @@ function drawMap() {
         var normalColor = '#ff0000',
             hoverColor = '#ffff00';
 
+        if (track === LONGEST_TRACK) {
+            normalColor = '#ffcc00';
+        }
+
         var distance = Math.floor(track.distance * 10) / 10;
+
+        // from 0.3 to 0.8. Secret formula.
+        var opacity = 0.3 + ((track.distance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE)) * (0.8 - 0.3);
 
         var polyline = new ymaps.Polyline(track.path, {
             hintContent: distance + 'км',
@@ -50,7 +57,7 @@ function drawMap() {
         }, {
             strokeColor: normalColor,
             strokeWidth: 4,
-            strokeOpacity: 0.6,
+            strokeOpacity: opacity,
             zIndex: 1,
             zIndexHover: 42
         });
@@ -112,6 +119,7 @@ function processTracks() {
         }
         if (distance > MAX_DISTANCE) {
             MAX_DISTANCE = distance;
+            LONGEST_TRACK = track;
         }
 
         track.distance = distance / 1000;
