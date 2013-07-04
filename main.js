@@ -1,5 +1,7 @@
 var TRACKS, RIDES_COUNT, TOTAL, MIN_DISTANCE, AVG_DISTANCE, MAX_DISTANCE, LONGEST_TRACK;
+var LONGEST_TIMEOUT;
 var MAP;
+var OPENED_BALLOON = null;
 
 var loadLeft = 0;
 function isOneLoaded() { loadLeft--; if (loadLeft === 0) start(); }
@@ -19,6 +21,8 @@ function start() {
     
     updateStats();
     drawMap();
+    updatePathList();
+    handleTabs();
 }
 
 // uses globals
@@ -38,10 +42,15 @@ function drawMap() {
 
     TRACKS.forEach(function(track) {
         var normalColor = '#ff0000',
-            hoverColor = '#ffff00';
+            hoverColor = '#ffff00',
+            notLongestColor = normalColor,
+            longestColor = '#00ff00';
+
+        var normalZindex = 1,
+            hoverZindex = 42;
 
         if (track === LONGEST_TRACK) {
-            normalColor = '#ffcc00';
+            normalColor = longestColor;
         }
 
         var distance = Math.floor(track.distance * 10) / 10;
@@ -58,15 +67,50 @@ function drawMap() {
             strokeColor: normalColor,
             strokeWidth: 4,
             strokeOpacity: opacity,
-            zIndex: 1,
-            zIndexHover: 42
+            zIndex: normalZindex,
+            zIndexHover: hoverZindex
         });
 
+        track.mapApi = {
+            hover: function(to) {
+                polyline.options.set('strokeColor', to ? hoverColor : normalColor);
+                polyline.options.set('strokeOpacity', to ? 0.9 : opacity);
+                polyline.options.set('zIndex', to ? hoverZindex : normalZindex);
+
+                if (to && OPENED_BALLOON !== null) {
+                    OPENED_BALLOON.mapApi.balloon(false);
+                }
+
+                if (track !== LONGEST_TRACK) {
+                    if (to) {
+                        clearTimeout(LONGEST_TIMEOUT);
+                        LONGEST_TRACK.mapApi.notLongest(to);
+                    } else {
+                        LONGEST_TIMEOUT = setTimeout(function() {
+                            LONGEST_TRACK.mapApi.notLongest(to);
+                        }, 250);
+                    }
+                }
+            },
+            notLongest: function(to) {
+                polyline.options.set('strokeColor', to ? notLongestColor : longestColor);
+            },
+            balloon: function(to) {
+                if (to) {
+                    OPENED_BALLOON = track;
+                    polyline.balloon.open();
+                } else {
+                    OPENED_BALLOON = null;
+                    polyline.balloon.close();
+                }
+            }
+        };
+
         polyline.events.add('mouseenter', function() {
-            polyline.options.set('strokeColor', hoverColor);
+            track.mapApi.hover(true);
         });
         polyline.events.add('mouseleave', function() {
-            polyline.options.set('strokeColor', normalColor);
+            track.mapApi.hover(false);
         });
 
         rideMap.geoObjects.add(polyline);
@@ -92,11 +136,55 @@ function updateStats() {
         var distance = 40075;
         return (Math.round((km / distance) * 10000) / 10000).toString();
     }
+}
 
-    function trunc(number, to) {
-        var t = Math.pow(10, to);
-        return Math.round(number * t) / t;
-    }
+// uses globals
+function updatePathList() {
+    var ul = $('#pathList');
+    
+    TRACKS.forEach(function(track) {
+        var text = track.name + ' (' + track.date + ')';
+
+        var span = $('<span>').addClass('border-here').text(text);
+        var kmBadge = $('<span>').addClass('label').text(trunc(track.distance, 1) + 'км');
+
+        var grade = Math.floor(((track.distance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE)) * 5);
+        if (grade === 5) grade = 4;
+        if (grade > 0) {
+            kmBadge.addClass(['info', 'success', 'warning', 'important'
+            ].map(function(g) { return 'label-' + g; })[grade - 1]);
+        }
+
+        ul.append($('<li>').append(span).append($('<span>').text(' ')).append(kmBadge));
+
+        span.on('mouseenter', function() {
+            track.mapApi.hover(true);
+        }).on('mouseleave', function() {
+            track.mapApi.hover(false);
+        }).on('click', function() {
+            track.mapApi.balloon(true);
+        });
+    });
+}
+
+function handleTabs() {
+    var statsButton = $('#statsButton'),
+        pathButton = $('#pathButton'),
+        statsBlock = $('#statsBlock'),
+        pathBlock = $('#pathBlock');
+
+    statsButton.click(function() {
+        statsButton.prop('disabled', true);
+        pathButton.prop('disabled', false);
+        $('#pathBlock').hide();
+        $('#statsBlock').show();
+    });
+    pathButton.click(function() {
+        pathButton.prop('disabled', true);
+        statsButton.prop('disabled', false);
+        $('#statsBlock').hide();
+        $('#pathBlock').show();
+    });
 }
 
 // uses globals
@@ -105,6 +193,14 @@ function processTracks() {
     TOTAL = 0;
     MIN_DISTANCE = Infinity;
     MAX_DISTANCE = -Infinity;
+
+    TRACKS = TRACKS.sort(function(a, b) {
+        if (a.data !== b.date) {
+            return a.date > b.date;
+        } else {
+            return a.number > b.number;
+        }
+    });
 
     TRACKS.forEach(function(track) {
         var distance = 0;
@@ -132,4 +228,9 @@ function processTracks() {
     TOTAL = Math.floor(TOTAL / 100) / 10;
 
     AVG_DISTANCE = TOTAL / RIDES_COUNT;
+}
+
+function trunc(number, to) {
+    var t = Math.pow(10, to);
+    return Math.round(number * t) / t;
 }

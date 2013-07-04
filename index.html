@@ -29,6 +29,14 @@ a.communa-link {
 a.communa-link:hover {
     color: #4D0908;
 }
+#pathList li span.border-here {
+    color: gray;
+    cursor: pointer;
+    border-bottom: 1px dotted;
+}
+#pathList li span.border-here:hover {
+    color: #222;
+}
   </style>
 
   <!-- Yandex.Metrika counter --><script type="text/javascript">(function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter21682768 = new Ya.Metrika({id:21682768, clickmap:true, trackLinks:true, accurateTrackBounce:true}); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="//mc.yandex.ru/watch/21682768" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter -->
@@ -47,36 +55,52 @@ a.communa-link:hover {
 
       <hr>
 
-      <div class='well lead'>
-        <div>
-          <p class='pull-left'>Поездок: <span id='totalRides' class='badge'><i class='icon-refresh icon-white'></i></span></p>
-          <p class='pull-right'>Упал... <span class='badge badge-success'>0</span> раз! ;)</p>
+      <div class='text-center'>
+        <div class='btn-group' style='display:inline-block;'>
+          <button id='statsButton' class='btn' disabled>Статистика</button>
+          <button id='pathButton' class='btn'>Пути</button>
         </div>
-
-        <table class='table table-bordered'>
-          <thead>
-            <tr>
-              <td>Кратчайшая</td>
-              <td>Средняя</td>
-              <td>Длиннейшая</td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td id='minRide'><i class='icon-refresh'><i></td>
-              <td id='avgRide'><i class='icon-refresh'><i></td>
-              <td id='maxRide'><i class='icon-refresh'><i></td>
-            </tr>
-          </tbody>
-        </table>
       </div>
 
       <hr>
 
-      <div class='well lead'>
-        <p>Наездил <span id='totalKm' class='badge badge-success'><i class='icon-refresh icon-white'></i></span></p>
-        <p>Это <span id='toMinsk' class='badge badge-warning'><i class='icon-refresh icon-white'></i></span> раз до Минска</p>
-        <p>И кругосветное путешествие на <span id='worldTrip' class='badge badge-info'><i class='icon-refresh icon-white'></i></span></p>
+      <div id='statsBlock'>
+        <div class='well lead'>
+          <div>
+            <p class='pull-left'>Поездок: <span id='totalRides' class='badge'><i class='icon-refresh icon-white'></i></span></p>
+            <p class='pull-right'>Упал... <span class='badge badge-success'>0</span> раз! ;)</p>
+          </div>
+
+          <table class='table table-bordered'>
+            <thead>
+              <tr>
+                <td>Кратчайшая</td>
+                <td>Средняя</td>
+                <td>Длиннейшая</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td id='minRide'><i class='icon-refresh'><i></td>
+                <td id='avgRide'><i class='icon-refresh'><i></td>
+                <td id='maxRide'><i class='icon-refresh'><i></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <hr>
+
+        <div class='well lead'>
+          <p>Наездил <span id='totalKm' class='badge badge-success'><i class='icon-refresh icon-white'></i></span></p>
+          <p>Это <span id='toMinsk' class='badge badge-warning'><i class='icon-refresh icon-white'></i></span> раз до Минска</p>
+          <p>И кругосветное путешествие на <span id='worldTrip' class='badge badge-info'><i class='icon-refresh icon-white'></i></span></p>
+        </div>
+      </div>
+
+      <div id='pathBlock' style='display:none;'>
+        <ul id='pathList'>
+        </ul>
       </div>
 
       <hr>
