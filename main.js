@@ -73,7 +73,7 @@ function drawMap() {
         });
 
         track.mapApi = {
-            hover: function(to) {
+            hover: function(to, fromMap) {
                 polyline.options.set('strokeColor', to ? hoverColor : normalColor);
                 polyline.options.set('strokeOpacity', to ? 0.9 : opacity);
                 polyline.options.set('zIndex', to ? hoverZindex : normalZindex);
@@ -83,7 +83,7 @@ function drawMap() {
                 }
 
                 if (track !== LONGEST_TRACK) {
-                    if (to) {
+                    if (to || fromMap) {
                         clearTimeout(LONGEST_TIMEOUT);
                         LONGEST_TRACK.mapApi.notLongest(to);
                     } else {
@@ -91,6 +91,8 @@ function drawMap() {
                             LONGEST_TRACK.mapApi.notLongest(to);
                         }, 250);
                     }
+                } else {
+                    clearTimeout(LONGEST_TIMEOUT);
                 }
             },
             notLongest: function(to) {
@@ -108,10 +110,10 @@ function drawMap() {
         };
 
         polyline.events.add('mouseenter', function() {
-            track.mapApi.hover(true);
+            track.mapApi.hover(true, true);
         });
         polyline.events.add('mouseleave', function() {
-            track.mapApi.hover(false);
+            track.mapApi.hover(false, true);
         });
 
         rideMap.geoObjects.add(polyline);
