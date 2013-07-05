@@ -199,9 +199,9 @@ function processTracks() {
 
     TRACKS = TRACKS.sort(function(a, b) {
         if (a.data !== b.date) {
-            return a.date > b.date;
+            return a.date < b.date ? -1 : 1;
         } else {
-            return a.number > b.number;
+            return a.number < b.number ? -1 : 1;
         }
     });
 
