@@ -198,7 +198,7 @@ function processTracks() {
     MAX_DISTANCE = -Infinity;
 
     TRACKS = TRACKS.sort(function(a, b) {
-        if (a.data !== b.date) {
+        if (a.date !== b.date) {
             return a.date < b.date ? -1 : 1;
         } else {
             return a.number < b.number ? -1 : 1;
