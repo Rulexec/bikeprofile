@@ -11,6 +11,8 @@
 
   <script src='http://api-maps.yandex.ru/2.0/?load=package.standard,package.geoObjects&lang=ru-RU'></script>
 
+  <script src='lib/webgl-heatmap.js'></script>
+
   <script src='main.js'></script>
 
   <style>
@@ -37,6 +39,13 @@ a.communa-link:hover {
 #pathList li span.border-here:hover {
     color: #222;
 }
+
+#heatmap {
+    position: absolute;
+    top: 35px;
+    left: 20px;
+    opacity: 0.75;
+}
   </style>
 
   <!-- Yandex.Metrika counter --><script type="text/javascript">(function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter21682768 = new Ya.Metrika({id:21682768, clickmap:true, trackLinks:true, accurateTrackBounce:true}); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="//mc.yandex.ru/watch/21682768" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter -->
@@ -48,6 +57,7 @@ a.communa-link:hover {
   <div class='row-fluid'>
     <div class='span7'>
       <div id='map' class='loading-icon'></div>
+      <div><canvas id='heatmap'></canvas></div>
     </div>
 
     <div class='span5'>

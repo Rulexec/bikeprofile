@@ -23,6 +23,7 @@ function start() {
     drawMap();
     updatePathList();
     handleTabs();
+    drawHeatmap();
 }
 
 // uses globals
@@ -39,6 +40,8 @@ function drawMap() {
 
     rideMap.controls.add('zoomControl', {left: 5, top: 5});
     rideMap.controls.add('typeSelector');
+
+    var projection = rideMap.options.get('projection');
 
     TRACKS.forEach(function(track) {
         var normalColor = '#ff0000',
@@ -106,6 +109,13 @@ function drawMap() {
                     OPENED_BALLOON = null;
                     polyline.balloon.close();
                 }
+            },
+            getPixelBounds: function(zoom) {
+                zoom = 13;
+
+                var bounds = polyline.geometry.getBounds();
+                return [projection.toGlobalPixels(bounds[0], zoom),
+                        projection.toGlobalPixels(bounds[1], zoom)];
             }
         };
 
@@ -118,6 +128,114 @@ function drawMap() {
 
         rideMap.geoObjects.add(polyline);
     });
+}
+
+// uses globals
+function drawHeatmap() {
+    var bounds = TRACKS.slice(1).reduce(function(acc, track) {
+        var bounds = track.mapApi.getPixelBounds();
+
+        return [
+            [Math.min(acc[0][0], bounds[0][0]), Math.max(acc[0][1], bounds[0][1])],
+            [Math.max(acc[1][0], bounds[1][0]), Math.min(acc[1][1], bounds[1][1])]
+        ];
+    }, TRACKS[0].mapApi.getPixelBounds());
+
+    var p = MAP.options.get('projection');
+    var geoBounds = [p.fromGlobalPixels(bounds[0], 13), p.fromGlobalPixels(bounds[1], 13)];
+
+    var width = Math.floor(bounds[1][0] - bounds[0][0]),
+        height = Math.floor(bounds[0][1] - bounds[1][1]);
+
+    var leftCorner = bounds[0][0],
+        topCorner = bounds[1][1];
+
+    $('#heatmap').attr('width', width).attr('height', height);
+
+    var heatmap = createWebGLHeatmap({
+        canvas: $('#heatmap').get(0)
+    });
+
+    var every = 100; // meters
+
+    TRACKS.forEach(function(track) {
+        var pointsCount = Math.floor(1000 * track.distance / every);
+        var offset = ((1000 * track.distance) - (pointsCount - 1) * every) / 2;
+
+        //var direction = ymaps.coordSystem.geo.solveInverseProblem(previos, current).startDirection;
+        //ymaps.coordSystem.geo.solveDirectProblem(previos, direction, every);
+        //var firstPosition = moveFromTo(track.path[0], track.path[1], offset);
+
+        track.path.slice(1).reduce(function(previos, current) {
+            var distance = ymaps.coordSystem.geo.getDistance(previos, current);
+
+            if (distance >= every) {
+                previos = moveFromTo(previos, current, offset);
+
+                while ((distance = ymaps.coordSystem.geo.getDistance(previos, current)) >= every) {
+                    placePoint(previos);
+
+                    previos = moveFromTo(previos, current, every);
+                }
+
+                offset = every - distance;
+            } else {
+                if (offset > distance) {
+                    offset -= distance;
+                } else {
+                    placePoint(moveFromTo(previos, current, distance - offset));
+                    offset = every - (distance - offset);
+                }
+            }
+
+            return current;
+            /*var point = moveFromTo(previos, current, every);
+
+            var pos = p.toGlobalPixels(point, 13);
+            pos[0] -= leftCorner;
+            pos[1] -= topCorner;
+
+            console.log(pos);
+
+            heatmap.addPoint(pos[0], pos[1], 10, 1);
+
+            // FIXME Вообще говоря, это неправильно и будут скашиваться пути
+            return current;*/
+        });
+
+        function placePoint(point) {
+            var pos = p.toGlobalPixels(point, 13);
+            pos[0] -= leftCorner;
+            pos[1] -= topCorner;
+
+            heatmap.addPoint(pos[0], pos[1], 35, 0.09);
+        }
+
+        function moveFromTo(from, to, distance) {
+            var direction = ymaps.coordSystem.geo.solveInverseProblem(from, to).startDirection;
+            return ymaps.coordSystem.geo.solveDirectProblem(from, direction, distance).endPoint;
+        }
+        //track.path
+        /*track.path.forEach(function(point) {
+            var pos = p.toGlobalPixels(point, 13);
+            pos[0] -= leftCorner;
+            pos[1] -= topCorner;
+
+            heatmap.addPoint(pos[0], pos[1], 35, 0.15);
+        });*/
+    });
+
+    heatmap.update();
+    heatmap.display();
+    //console.log(width, height);
+    //MAP.setCenter(geoBounds[1]);
+    //console.log(geoBounds);
+    /*var c1 = new ymaps.Circle([geoBounds[0], 10], {
+            strokeColor: '#000000',
+            strokeWidth: 5});
+    var c2 = new ymaps.Circle([geoBounds[1], 10]);*/
+
+    //console.log(TRACKS[0].mapApi.getPixelBounds());
 }
 
 // uses globals
