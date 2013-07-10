@@ -1,4 +1,5 @@
-var TRACKS, RIDES_COUNT, TOTAL, MIN_DISTANCE, AVG_DISTANCE, MAX_DISTANCE, LONGEST_TRACK;
+var TRACKS, RIDES_COUNT, TOTAL, MIN_DISTANCE, AVG_DISTANCE, MAX_DISTANCE, LONGEST_TRACK,
+    AVG_DAY, LAST_THREE_DAYS;
 var LONGEST_TIMEOUT;
 var MAP;
 var OPENED_BALLOON = null;
@@ -131,6 +132,9 @@ function updateStats() {
     $('#avgRide').text(trunc(AVG_DISTANCE, 1) + 'км');
     $('#maxRide').text(trunc(MAX_DISTANCE, 1) + 'км');
 
+    $('#avgDay').text(trunc(AVG_DAY, 1) + 'км');
+    $('#lastDays').text(trunc(LAST_THREE_DAYS, 1) + 'км');
+
     function calcToMinskStr(km) {
         var distance = 350;
         return (Math.round((km / distance) * 100) / 100).toString();
@@ -197,6 +201,9 @@ function processTracks() {
     MIN_DISTANCE = Infinity;
     MAX_DISTANCE = -Infinity;
 
+    var days = {},
+        daysCount = 0;
+
     TRACKS = TRACKS.sort(function(a, b) {
         if (a.date !== b.date) {
             return a.date < b.date ? -1 : 1;
@@ -223,6 +230,17 @@ function processTracks() {
 
         track.distance = distance / 1000;
         TOTAL += distance;
+
+        if (days[track.date] === undefined) {
+            days[track.date] = {
+                total: track.distance,
+                count: 1
+            };
+            daysCount++;
+        } else {
+            days[track.date].total += track.distance;
+            days[track.date].count++;
+        }
     });
 
     MIN_DISTANCE /= 1000;
@@ -231,9 +249,29 @@ function processTracks() {
     TOTAL = Math.floor(TOTAL / 100) / 10;
 
     AVG_DISTANCE = TOTAL / RIDES_COUNT;
+
+    AVG_DAY = TOTAL / daysCount;
+    LAST_THREE_DAYS = 0;
+
+    var now = new Date();
+    for (var i = TRACKS.length - 1; i >= 0; i--) {
+        if (now - (new Date(TRACKS[i].date)) > 24 * 60 * 60 * 1000) {
+            break;
+        } else {
+            LAST_THREE_DAYS += TRACKS[i].distance;
+        }
+    }
 }
 
 function trunc(number, to) {
     var t = Math.pow(10, to);
     return Math.round(number * t) / t;
+}
+
+function objectReduce(object, callback, initial) {
+    for (var name in object) if (object.hasOwnProperty(name)) {
+        initial = callback(initial, name, object[name]);
+    }
+
+    return initial;
 }
