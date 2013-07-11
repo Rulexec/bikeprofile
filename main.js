@@ -255,7 +255,7 @@ function processTracks() {
 
     var now = new Date();
     for (var i = TRACKS.length - 1; i >= 0; i--) {
-        if (now - (new Date(TRACKS[i].date)) > 24 * 60 * 60 * 1000) {
+        if (now - (new Date(TRACKS[i].date)) > 3 * 24 * 60 * 60 * 1000) {
             break;
         } else {
             LAST_THREE_DAYS += TRACKS[i].distance;
